@@ -135,7 +135,13 @@ async function initPlaySeq(rounds) {
     let simonePlay = new Array(); //array to hold the next color in playSeq
     let continuePlay = true;
     let i = 0;
+    //create a buffer that decreases in higher rounds
+    let buttonBuffer = 400
     while(continuePlay == true) {
+        console.log(buttonBuffer)
+        if(buttonBuffer > 200) {
+            buttonBuffer *= .92;
+        }
         //push each iteration of playSeq onto the array
         simonePlay.push(playSeq[i])
         //run through the all entries up to any given round based on the simonePlay array
@@ -177,12 +183,12 @@ async function initPlaySeq(rounds) {
                     }, 200)
                 );
             }
-            //400 ms buffer between next color display
+            //buffer between next color display (*Optional increase of speed on higher rounds)
             if(simonePlay.length > 1) {
                 await new Promise((resolve) =>
                     setTimeout(() => {
                         resolve();
-                    }, 400)
+                    }, buttonBuffer)
                 );
             }
         }
