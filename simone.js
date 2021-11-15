@@ -14,11 +14,16 @@ let yellowSquare = document.querySelector("#yellowSq")
 // and status and background
 let statusP = document.querySelector("#status")
 let background = document.querySelector("body")
-let colors = document.querySelector("div")
+//optional timer
+let timer = document.querySelector("#div_time")
 
 //values to be used later: rounds, player input
 let round_num = 10;
 let playerInput = "";
+let timerCount;
+
+//audio retrieved from https://orangefreesounds.com/jaws-theme-song/ for suspensefulness
+let suspense = new Audio("sounds/suspensful.mp3");
 
 //change value of round number if the input is changed
 round_count.addEventListener("input", () => {
@@ -138,7 +143,6 @@ async function initPlaySeq(rounds) {
     //create a buffer that decreases in higher rounds
     let buttonBuffer = 400
     while(continuePlay == true) {
-        console.log(buttonBuffer)
         if(buttonBuffer > 200) {
             buttonBuffer *= .92;
         }
@@ -289,13 +293,17 @@ async function userPlay(simonePlay) {
                 }, 200)
             );
         }
+        clearInterval(timerCount)
         if(playerInput != simonePlay[i]) {
+            suspense.pause()
             return false;
         }
-        //reset playerInput and update the playCount
+        //reset playerInput and update the playCount and timer
         playerInput = "";
         playCount--;
+        timer.innerHTML = 10;
     }
+    suspense.pause()
     //if it gets through the sequence at this round return true to get to next round (or end game)
     return true;
 }
@@ -308,6 +316,24 @@ async function userPlay(simonePlay) {
  */
 async function getPlayerInput() {
     return await new Promise((resolve) => {
+        //run a timer for every user input
+        let countDown = timer.innerHTML;
+        timerCount = setInterval(() => {
+            suspense.play();
+            if(countDown != 0) {
+                countDown--;
+            }
+            else {
+                suspense.pause()
+                //run the losing progression for an incorrect response
+                clearInterval(timerCount)
+                statusP.innerHTML = `Sorry! You ran out of time!`
+                new Audio("sounds/wrong.wav").play();
+                background.style.backgroundColor = "hotpink"
+                new Audio("sounds/lose.wav").play();
+            }
+            timer.innerHTML = countDown;
+        }, 1000)
         //get a button press
         blueSquare.addEventListener("click", async () => {
             playerInput = "B";
