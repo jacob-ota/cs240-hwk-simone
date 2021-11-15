@@ -3,6 +3,7 @@
  * 
  * @author Jacob Ota
  */
+
 // query selectors for rounds and buttons
 let round_count = document.querySelector("#rounds");
 let button = document.querySelector("#play");
@@ -319,6 +320,7 @@ async function getPlayerInput() {
         //run a timer for every user input
         let countDown = timer.innerHTML;
         timerCount = setInterval(() => {
+            suspense.currentTime = 14
             suspense.play();
             if(countDown != 0) {
                 countDown--;
