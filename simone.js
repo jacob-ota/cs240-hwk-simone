@@ -250,6 +250,39 @@ async function userPlay(simonePlay) {
         }
         //waits on a string with the color the user selects which will be compared and if it is not the same end the game
         playerInput = await getPlayerInput();
+        //play audio and change color back for playerInput
+        if(playerInput == "B") {
+            new Audio("sounds/blue.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                resolve(blueSquare.style.backgroundColor = "blue")
+                }, 200)
+            );
+        }
+        else if(playerInput == "R") {
+            new Audio("sounds/red.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(redSquare.style.backgroundColor = "red")
+                }, 200)
+            );
+        }
+        else if(playerInput == "Y") {
+            new Audio("sounds/yellow.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(yellowSquare.style.backgroundColor = "yellow");
+                }, 200)
+            );
+        }
+        else if(playerInput == "G") {
+            new Audio("sounds/green.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(greenSquare.style.backgroundColor = "green")
+                }, 200)
+            );
+        }
         if(playerInput != simonePlay[i]) {
             return false;
         }
@@ -272,44 +305,20 @@ async function getPlayerInput() {
         //get a button press
         blueSquare.addEventListener("click", async () => {
             playerInput = "B";
-            new Audio("sounds/blue.wav").play();
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                resolve(blueSquare.style.backgroundColor = "blue")
-                }, 200)
-            );
             resolve(playerInput)
         }),
         redSquare.addEventListener("click", async () => {
             playerInput = "R";
-            new Audio("sounds/red.wav").play();
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                    resolve(redSquare.style.backgroundColor = "red")
-                }, 200)
-            );
             resolve(playerInput)
         }),
         
         yellowSquare.addEventListener("click", async () => {
             playerInput = "Y";
-            new Audio("sounds/yellow.wav").play();
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                    resolve(yellowSquare.style.backgroundColor = "yellow");
-                }, 200)
-            );
             resolve(playerInput)
         }),
         
         greenSquare.addEventListener("click", async () => {
             playerInput = "G";
-            new Audio("sounds/green.wav").play();
-            await new Promise((resolve) =>
-                setTimeout(() => {
-                    resolve(greenSquare.style.backgroundColor = "green")
-                }, 200)
-            );
             resolve(playerInput)
         });
     });
