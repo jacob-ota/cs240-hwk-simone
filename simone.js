@@ -3,17 +3,15 @@
  * 
  * @author Jacob Ota
  */
-
-//query selectors
-//rounds and buttons
+// query selectors for rounds and buttons
 let round_count = document.querySelector("#rounds");
 let button = document.querySelector("#play");
-//squares
+// and squares
 let blueSquare = document.querySelector("#blueSq")
 let redSquare = document.querySelector("#redSq")
 let greenSquare = document.querySelector("#greenSq")
 let yellowSquare = document.querySelector("#yellowSq")
-//status and background
+// and status and background
 let statusP = document.querySelector("#status")
 let background = document.querySelector("body")
 let colors = document.querySelector("div")
@@ -123,7 +121,122 @@ async function runStartSeq() {
     }
 }
 
+//run the play sequence while waiting for player input
+async function initPlaySeq(rounds) {
+    //wait for the play sequence to be retrieved
+    let playSeq = await getPlaySequence(rounds);
+    let simonePlay = new Array(); //array to hold the next color in playSeq
+    let continuePlay = true;
+    let i = 0;
+    while(continuePlay == true) {
+        //push each iteration of playSeq onto the array
+        simonePlay.push(playSeq[i])
+        //run through the all entries up to any given round based on the simonePlay array
+        for(let j = 0; j < simonePlay.length; j++) {
+            //for every color in the simonePlay seq check what color and display that color with sound
+            if(playSeq[j] == 'R') {
+                new Audio("sounds/red.wav").play();
+                redSquare.style.backgroundColor = "hotpink";
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve(redSquare.style.backgroundColor = "red")
+                    }, 200)
+                );
+            }
+            else if(playSeq[j] == 'G') {
+                new Audio("sounds/green.wav").play();
+                greenSquare.style.backgroundColor = "lightgreen";
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve(greenSquare.style.backgroundColor = "green")
+                    }, 200)
+                );
+            }
+            else if(playSeq[j] == 'B') {
+                new Audio("sounds/blue.wav").play();
+                blueSquare.style.backgroundColor = "lightblue";
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve(blueSquare.style.backgroundColor = "blue")
+                    }, 200)
+                );
+            }
+            else if(playSeq[j] == 'Y') {
+                new Audio("sounds/yellow.wav").play();
+                yellowSquare.style.backgroundColor = "lightyellow";
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve(yellowSquare.style.backgroundColor = "yellow");
+                    }, 200)
+                );
+            }
+            //400 ms buffer between next color display
+            if(simonePlay.length > 1) {
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve();
+                    }, 400)
+                );
+            }
+        }
+
+        //--------------------
+        //CODE HERE to wait for a user button press
+        //--------------------
+
+        //if it gets to the end of the game and continuePlay is still true
+        if(simonePlay.length == playSeq.length && continuePlay == true) {
+            //run the win progression
+            new Audio("sounds/win.mp3").play();
+            background.style.backgroundColor = "DeepSkyBlue"
+            statusP.innerHTML = `YAY! YOU WIN!!!`
+            //exit out of the while loop
+            continuePlay == false;
+            break;
+        }
+        //between round buffer or end if wrong button is pressed
+        if(continuePlay == true) {
+            //run the next round progression
+            statusP.innerHTML = `Good job! Prepare for next round.`
+            new Audio("sounds/nextRound.wav").play();
+            //stop showing the next round if it reaches the end of the playSeq and update the status
+            if((i+2) != playSeq.length + 1) {
+                //wait 800 ms to update the status
+                await new Promise((resolve) =>
+                    setTimeout(() => {
+                        resolve(statusP.innerHTML = `Round ${i + 2} of ${playSeq.length}`);
+                    }, 800)
+                );
+            }
+            //wait another 800 ms till running the next round and update the counter
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve();
+                }, 800)
+            );
+            i++;
+        }
+        else{
+            //run the losing progression for an incorrect response
+            statusP.innerHTML = `Incorrect! You lose!`
+            await new Audio("sounds/wrong.wav").play();
+            background.style.backgroundColor = "hotpink"
+            await new Audio("sounds/lose.wav").play();
+            break;
+        }
+    }
+}
+
 //run the start sequence
 button.addEventListener("click", async () => {
+    //run the start sequence
     await runStartSeq();
+    //wait 4 seconds after the start sequence to begin the first round
+    await new Promise((resolve) =>
+    setTimeout(() => {
+        resolve();
+    }, 4000)
+    );
+    //run the play sequence
+    initPlaySeq(round_num);
 });
