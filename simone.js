@@ -121,7 +121,14 @@ async function runStartSeq() {
     }
 }
 
-//run the play sequence while waiting for player input
+/**
+ * This function runs the whole game, it runs through each spot of the play sequence in a 1..1,2..1,2,3..(etc)
+ * pattern till the end of the play sequence, and takes in user input and based on that input it determines whether
+ * to move on to the next round or terminate the game. And if the user successfully finished the whole sequence
+ * the winning progression will be played.
+ * 
+ * @param {*} rounds takes in the number of rounds that will be played for the game
+ */
 async function initPlaySeq(rounds) {
     //wait for the play sequence to be retrieved
     let playSeq = await getPlaySequence(rounds);
@@ -179,11 +186,8 @@ async function initPlaySeq(rounds) {
                 );
             }
         }
-
-        //--------------------
-        //CODE HERE to wait for a user button press
-        //--------------------
-
+        //waits for a user button press
+        continuePlay = await userPlay(simonePlay)
         //if it gets to the end of the game and continuePlay is still true
         if(simonePlay.length == playSeq.length && continuePlay == true) {
             //run the win progression
@@ -227,10 +231,150 @@ async function initPlaySeq(rounds) {
     }
 }
 
+/**
+ * This function takes the array of a specific rounds sequence and based on player input it compares that
+ * to the color at that specific point. If it is the same it continues the sequence and if it is not the 
+ * same then it returns false that will ultimately end the game.
+ * 
+ * @param {*} simonePlay the array of the round that is being played at any given round.
+ * @returns boolean true continues the game and a false ends the game
+ */
+async function userPlay(simonePlay) {
+    //playCount is used to show how many more selections need to be made in the status
+    let playCount = simonePlay.length;
+    for(let i = 0; i < simonePlay.length; i++) {
+        //display how many more selections need to be made after the first color the user
+        // selects and it doesn't show it for the first round.
+        if(playCount >= 1 && playCount != simonePlay.length) {
+            statusP.innerHTML = `So far so good! ${playCount} more to go!`
+        }
+        //waits on a string with the color the user selects which will be compared and if it is not the same end the game
+        playerInput = await getPlayerInput();
+        if(playerInput != simonePlay[i]) {
+            return false;
+        }
+        //reset playerInput and update the playCount
+        playerInput = "";
+        playCount--;
+    }
+    //if it gets through the sequence at this round return true to get to next round (or end game)
+    return true;
+}
+
+/**
+ * This function waits for a button click from the user and based on that button click returns a string
+ * of that color.
+ * 
+ * @returns an a string that holds what color corresponds to the users button press 
+ */
+async function getPlayerInput() {
+    return await new Promise((resolve) => {
+        //get a button press
+        blueSquare.addEventListener("click", async () => {
+            playerInput = "B";
+            new Audio("sounds/blue.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                resolve(blueSquare.style.backgroundColor = "blue")
+                }, 200)
+            );
+            resolve(playerInput)
+        }),
+        redSquare.addEventListener("click", async () => {
+            playerInput = "R";
+            new Audio("sounds/red.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(redSquare.style.backgroundColor = "red")
+                }, 200)
+            );
+            resolve(playerInput)
+        }),
+        
+        yellowSquare.addEventListener("click", async () => {
+            playerInput = "Y";
+            new Audio("sounds/yellow.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(yellowSquare.style.backgroundColor = "yellow");
+                }, 200)
+            );
+            resolve(playerInput)
+        }),
+        
+        greenSquare.addEventListener("click", async () => {
+            playerInput = "G";
+            new Audio("sounds/green.wav").play();
+            await new Promise((resolve) =>
+                setTimeout(() => {
+                    resolve(greenSquare.style.backgroundColor = "green")
+                }, 200)
+            );
+            resolve(playerInput)
+        });
+    });
+}
+
 //run the start sequence
 button.addEventListener("click", async () => {
     //run the start sequence
     await runStartSeq();
+    //highlight the squares
+    blueSquare.addEventListener("mouseover", () => {
+        blueSquare.style.border = "thin solid white"
+    });
+    redSquare.addEventListener("mouseover", () => {
+        redSquare.style.border = "thin solid white"
+    });
+    yellowSquare.addEventListener("mouseover", () => {
+        yellowSquare.style.border = "thin solid white"
+    });
+    greenSquare.addEventListener("mouseover", () => {
+        greenSquare.style.border = "thin solid white"
+    });
+    //remove highlights if mouse is moved off
+    blueSquare.addEventListener("mouseout", () => {
+        blueSquare.style.backgroundColor = "blue"
+        blueSquare.style.border = "none"
+    });
+    redSquare.addEventListener("mouseout", () => {
+        redSquare.style.backgroundColor = "red"
+        redSquare.style.border = "none"
+    });
+    yellowSquare.addEventListener("mouseout", () => {
+        yellowSquare.style.backgroundColor = "yellow"
+        yellowSquare.style.border = "none"
+    });
+    greenSquare.addEventListener("mouseout", () => {
+        greenSquare.style.backgroundColor = "green"
+        greenSquare.style.border = "none"
+    });
+    //mouse down effects
+    blueSquare.addEventListener("mousedown", async () => {
+        blueSquare.style.backgroundColor = "lightblue";
+    });   
+    redSquare.addEventListener("mousedown", async () => {
+        redSquare.style.backgroundColor = "hotpink";
+    });   
+    yellowSquare.addEventListener("mousedown", async () => {
+        yellowSquare.style.backgroundColor = "lightyellow";
+    });
+    greenSquare.addEventListener("mousedown", async () => {
+        greenSquare.style.backgroundColor = "lightgreen";
+    });
+    //mouse up effects
+    blueSquare.addEventListener("mouseup", async () => {
+        blueSquare.style.backgroundColor = "blue";
+    });   
+    redSquare.addEventListener("mouseup", async () => {
+        redSquare.style.backgroundColor = "red";
+    });   
+    yellowSquare.addEventListener("mouseup", async () => {
+        yellowSquare.style.backgroundColor = "yellow";
+    });
+    greenSquare.addEventListener("mouseup", async () => {
+        greenSquare.style.backgroundColor = "green";
+    });
     //wait 4 seconds after the start sequence to begin the first round
     await new Promise((resolve) =>
     setTimeout(() => {
